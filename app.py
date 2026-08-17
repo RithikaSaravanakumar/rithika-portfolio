@@ -12,10 +12,10 @@ def index():
 @app.route("/download_resume")
 def download_resume():
     return send_file(
-        "static/files/resume_placeholder.txt",
+        "static/files/resume.pdf",
         as_attachment=True,
-        download_name="resume_placeholder.txt",
-        mimetype="text/plain",
+        download_name="resume_rithikasaravanakumar.pdf",
+        mimetype="application/pdf",
     )
 
 

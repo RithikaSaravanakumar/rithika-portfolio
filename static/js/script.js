@@ -1,6 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const header = document.querySelector('.site-header');
   const navToggle = document.querySelector('.nav-toggle');
   const navLinks = document.querySelector('.nav-links');
+  const navAnchors = document.querySelectorAll('.nav-links a');
+  const progressBar = document.querySelector('.scroll-progress-bar');
+
+  if (progressBar) {
+    const updateScrollProgress = () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollProgress = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
+      progressBar.style.transform = `scaleX(${Math.min(Math.max(scrollProgress / 100, 0), 1)})`;
+    };
+
+    updateScrollProgress();
+    window.addEventListener('scroll', updateScrollProgress, { passive: true });
+  }
+
+  if (header) {
+    const updateHeaderState = () => {
+      header.classList.toggle('scrolled', window.scrollY > 24);
+    };
+
+    updateHeaderState();
+    window.addEventListener('scroll', updateHeaderState, { passive: true });
+  }
 
   if (navToggle && navLinks) {
     navToggle.addEventListener('click', () => {
@@ -8,13 +31,51 @@ document.addEventListener('DOMContentLoaded', () => {
       navToggle.setAttribute('aria-expanded', String(isOpen));
     });
 
-    navLinks.querySelectorAll('a').forEach(link => {
+    navAnchors.forEach((link) => {
       link.addEventListener('click', () => {
         navLinks.classList.remove('open');
         navToggle.setAttribute('aria-expanded', 'false');
       });
     });
   }
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        sectionObserver.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.12,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  document.querySelectorAll('.reveal').forEach((element) => {
+    sectionObserver.observe(element);
+  });
+
+  const activeSections = ['home', 'about', 'skills', 'experience', 'projects', 'education', 'certifications', 'achievements', 'contact'];
+  const sectionTargets = activeSections
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
+
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+
+      const id = entry.target.getAttribute('id');
+      navAnchors.forEach((link) => {
+        const linkHref = link.getAttribute('href');
+        link.classList.toggle('active', linkHref === `#${id}`);
+      });
+    });
+  }, {
+    threshold: 0.45,
+    rootMargin: '-10% 0px -40% 0px'
+  });
+
+  sectionTargets.forEach((section) => navObserver.observe(section));
 
   const projectCards = document.querySelectorAll('.project-card');
   const projectToggles = document.querySelectorAll('.project-toggle');
