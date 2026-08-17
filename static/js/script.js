@@ -16,6 +16,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const projectCards = document.querySelectorAll('.project-card');
+  const projectToggles = document.querySelectorAll('.project-toggle');
+
+  if (projectCards.length) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        const card = entry.target;
+        const index = Array.from(projectCards).indexOf(card);
+        card.style.transitionDelay = `${index * 80}ms`;
+        card.classList.add('is-visible');
+        revealObserver.unobserve(card);
+      });
+    }, { threshold: 0.15 });
+
+    projectCards.forEach((card, index) => {
+      card.style.transitionDelay = `${index * 80}ms`;
+      revealObserver.observe(card);
+    });
+  }
+
+  projectToggles.forEach((toggle) => {
+    const card = toggle.closest('.project-card');
+    if (!card) return;
+
+    toggle.addEventListener('click', () => {
+      const isOpen = card.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      toggle.textContent = isOpen ? 'Hide Details' : 'View Details';
+    });
+  });
+
   const contactForm = document.querySelector('.contact-form');
   const submitButton = document.getElementById('contact-submit');
   const statusBox = document.querySelector('.form-status');
