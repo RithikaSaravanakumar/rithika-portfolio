@@ -156,7 +156,7 @@ textarea {
 }
 
 .hero-copy {
-  animation: heroFadeUp 0.8s ease both;
+  animation: none;
 }
 
 .hero-copy .status-badge,
@@ -164,21 +164,37 @@ textarea {
 .hero-copy h2,
 .hero-copy p,
 .hero-copy .cta-group {
+  animation: none;
+}
+
+.reveal.visible .status-badge,
+.reveal.visible h1,
+.reveal.visible h2,
+.reveal.visible p,
+.reveal.visible .cta-group {
   animation: heroFadeUp 0.8s ease both;
 }
 
-.hero-copy .status-badge { animation-delay: 0.12s; }
-.hero-copy h1 { animation-delay: 0.2s; }
-.hero-copy h2 { animation-delay: 0.32s; }
-.hero-copy p { animation-delay: 0.44s; }
-.hero-copy .cta-group { animation-delay: 0.56s; }
+.reveal.visible .status-badge { animation-delay: 0.12s; }
+.reveal.visible h1 { animation-delay: 0.2s; }
+.reveal.visible h2 { animation-delay: 0.32s; }
+.reveal.visible p { animation-delay: 0.44s; }
+.reveal.visible .cta-group { animation-delay: 0.56s; }
 
 .hero-card {
+  animation: none;
+}
+
+.reveal.visible.hero-card {
   animation: heroCardIn 0.9s ease both;
   animation-delay: 0.28s;
 }
 
 .profile-badge {
+  animation: none;
+}
+
+.reveal.visible .profile-badge {
   animation: floatingProfile 5s ease-in-out infinite;
 }
 
@@ -290,6 +306,7 @@ textarea {
   transform: translateY(20px) scale(0.99);
 }
 
+.reveal.visible,
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -507,6 +524,7 @@ textarea {
   padding: 28px 26px;
 }
 
+.about-card.reveal.visible,
 .about-card.reveal.is-visible {
   transform: translateX(0);
 }
@@ -615,6 +633,7 @@ textarea {
   transition: transform 0.7s ease, opacity 0.6s ease;
 }
 
+.timeline.visible::before,
 .timeline.is-visible::before {
   transform: scaleY(1);
   opacity: 1;
@@ -631,6 +650,7 @@ textarea {
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
+.timeline.visible .timeline-item,
 .timeline.is-visible .timeline-item {
   opacity: 1;
   transform: translateY(0);
@@ -951,6 +971,7 @@ textarea {
   transform: scale(0.98);
 }
 
+.achievement-card.reveal.visible,
 .achievement-card.reveal.is-visible {
   transform: scale(1);
 }
@@ -1154,6 +1175,7 @@ textarea {
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
+.site-footer.reveal.visible .footer-content p,
 .site-footer.reveal.is-visible .footer-content p {
   opacity: 1;
   transform: translateY(0);

@@ -39,19 +39,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const revealElements = document.querySelectorAll('.reveal');
+
   const sectionObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        sectionObserver.unobserve(entry.target);
+      const target = entry.target;
+
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.15) {
+        target.classList.add('visible');
+        target.classList.remove('is-visible');
+        return;
       }
+
+      target.classList.remove('visible');
+      target.classList.remove('is-visible');
     });
   }, {
-    threshold: 0.12,
-    rootMargin: '0px 0px -40px 0px'
+    threshold: 0.15,
+    rootMargin: '0px 0px -5% 0px'
   });
 
-  document.querySelectorAll('.reveal').forEach((element) => {
+  revealElements.forEach((element) => {
     sectionObserver.observe(element);
   });
 
