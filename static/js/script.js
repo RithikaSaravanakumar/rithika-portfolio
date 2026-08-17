@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const messageCounter = document.getElementById('message-counter');
   const nameInput = document.getElementById('name');
   const emailInput = document.getElementById('email');
+  const fieldErrors = document.querySelectorAll('.field-error');
 
   if (!contactForm || !submitButton || !statusBox || !messageInput || !messageCounter) {
     return;
@@ -30,6 +31,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const MAX_MESSAGE_LENGTH = 2000;
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const recipientEmail = 'rithikasaravanakumar005@gmail.com';
+
+  function clearFieldErrors() {
+    fieldErrors.forEach(error => {
+      error.textContent = '';
+      error.classList.remove('visible');
+    });
+  }
+
+  function getFieldError(fieldName) {
+    return document.querySelector(`[data-error-for="${fieldName}"]`);
+  }
+
+  function setFieldError(fieldName, message) {
+    const fieldError = getFieldError(fieldName);
+    if (fieldError) {
+      fieldError.textContent = message;
+      fieldError.classList.add('visible');
+    }
+  }
 
   function setStatus(type, message) {
     statusBox.textContent = message;
@@ -44,90 +65,132 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateCounter() {
     const currentLength = messageInput.value.length;
     messageCounter.textContent = `${currentLength} / ${MAX_MESSAGE_LENGTH}`;
-    if (currentLength >= MAX_MESSAGE_LENGTH) {
-      messageCounter.style.color = 'var(--error)';
-      return;
-    }
-    messageCounter.style.color = 'var(--text-soft)';
+    messageCounter.style.color = currentLength >= MAX_MESSAGE_LENGTH ? 'var(--error)' : 'var(--text-soft)';
   }
 
   function validateForm() {
+    clearFieldErrors();
+    clearStatus();
+
     const nameValue = nameInput.value.trim();
     const emailValue = emailInput.value.trim();
     const messageValue = messageInput.value.trim();
+    let isValid = true;
 
     if (!nameValue) {
-      setStatus('error', 'Name cannot be empty.');
+      setFieldError('name', 'Name cannot be empty.');
       nameInput.focus();
-      return false;
-    }
-
-    if (nameValue.length > 100) {
-      setStatus('error', 'Name must be 100 characters or fewer.');
+      isValid = false;
+    } else if (nameValue.length > 100) {
+      setFieldError('name', 'Name must be 100 characters or fewer.');
       nameInput.focus();
-      return false;
+      isValid = false;
     }
 
     if (!emailValue) {
-      setStatus('error', 'Email is required.');
-      emailInput.focus();
-      return false;
-    }
-
-    if (!emailPattern.test(emailValue)) {
-      setStatus('error', 'Please enter a valid email address.');
-      emailInput.focus();
-      return false;
+      setFieldError('email', 'Email is required.');
+      if (isValid) emailInput.focus();
+      isValid = false;
+    } else if (!emailPattern.test(emailValue)) {
+      setFieldError('email', 'Please enter a valid email address.');
+      if (isValid) emailInput.focus();
+      isValid = false;
     }
 
     if (!messageValue) {
-      setStatus('error', 'Message cannot be empty.');
-      messageInput.focus();
-      return false;
+      setFieldError('message', 'Message cannot be empty.');
+      if (isValid) messageInput.focus();
+      isValid = false;
+    } else if (messageValue.length > MAX_MESSAGE_LENGTH) {
+      setFieldError('message', 'Message must be 2000 characters or fewer.');
+      if (isValid) messageInput.focus();
+      isValid = false;
     }
 
-    if (messageValue.length > MAX_MESSAGE_LENGTH) {
-      setStatus('error', 'Message must be 2000 characters or fewer.');
-      messageInput.focus();
-      return false;
-    }
-
-    return true;
+    return isValid;
   }
 
-  messageInput.addEventListener('input', () => {
-    updateCounter();
-    if (statusBox.classList.contains('error')) {
-      clearStatus();
-    }
-  });
+  function buildGmailUrl(name, email, message) {
+    const subject = `Portfolio Contact from ${name}`;
+    const body = [
+      'Hello Rithika,',
+      '',
+      `My name is ${name}.`,
+      '',
+      `My email address is ${email}.`,
+      '',
+      'Message:',
+      '',
+      message,
+      '',
+      'Regards,',
+      name
+    ].join('\n');
+
+    return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipientEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
 
   nameInput.addEventListener('input', () => {
-    if (statusBox.classList.contains('error')) {
-      clearStatus();
+    const fieldError = getFieldError('name');
+    if (nameInput.value.trim() && fieldError && fieldError.textContent) {
+      clearFieldErrors();
     }
+    clearStatus();
   });
 
   emailInput.addEventListener('input', () => {
-    if (statusBox.classList.contains('error')) {
-      clearStatus();
+    const fieldError = getFieldError('email');
+    if (emailInput.value.trim() && fieldError && fieldError.textContent) {
+      clearFieldErrors();
     }
+    clearStatus();
+  });
+
+  messageInput.addEventListener('input', () => {
+    updateCounter();
+    const fieldError = getFieldError('message');
+    if (messageInput.value.trim() && fieldError && fieldError.textContent) {
+      clearFieldErrors();
+    }
+    clearStatus();
   });
 
   contactForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
     if (!validateForm()) {
-      event.preventDefault();
       return;
     }
 
     if (submitButton.disabled) {
-      event.preventDefault();
       return;
     }
 
+    const visitorName = nameInput.value.trim();
+    const visitorEmail = emailInput.value.trim();
+    const visitorMessage = messageInput.value.trim();
+    const gmailUrl = buildGmailUrl(visitorName, visitorEmail, visitorMessage);
+
     submitButton.disabled = true;
-    submitButton.textContent = 'Sending...';
-    setStatus('info', 'Sending your message...');
+    submitButton.textContent = 'Opening Gmail...';
+    setStatus('info', 'Opening Gmail so you can review and send your message.');
+
+    const gmailWindow = window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+
+    if (!gmailWindow) {
+      setStatus('error', 'Gmail could not open. Please use the direct email link below.');
+      submitButton.disabled = false;
+      submitButton.textContent = 'Mail Me';
+      return;
+    }
+
+    setTimeout(() => {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Mail Me';
+      clearStatus();
+      contactForm.reset();
+      updateCounter();
+    }, 1200);
   });
 
   updateCounter();

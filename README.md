@@ -9,7 +9,7 @@ A clean, professional personal portfolio website built with Python and Flask for
 - Experience timeline for internship roles
 - Project showcase with tech badges and placeholder links
 - Skills, education, certifications, and achievements sections
-- Contact form with validation and success feedback
+- Contact section that opens a pre-filled Gmail compose window for direct email communication
 - Resume download placeholder for later PDF replacement
 
 ## Technology Stack
@@ -91,5 +91,6 @@ Placeholder for site screenshots to be added later.
 ## Future Improvements
 
 - Add the actual PDF resume file once available
-- Connect the contact form to an email service if required
 - Add more portfolio content as projects and achievements evolve
+
+The portfolio Contact section opens a pre-filled Gmail compose window so visitors can send an email directly to the portfolio owner.
