@@ -1,9 +1,84 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const cursor = document.querySelector('.cursor');
+  const cursorRobot = document.querySelector('.cursor-robot');
   const header = document.querySelector('.site-header');
   const navToggle = document.querySelector('.nav-toggle');
   const navLinks = document.querySelector('.nav-links');
   const navAnchors = document.querySelectorAll('.nav-links a');
   const progressBar = document.querySelector('.scroll-progress-bar');
+
+  const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (cursor && cursorRobot && hasFinePointer && !reducedMotionQuery.matches) {
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let currentX = mouseX;
+    let currentY = mouseY;
+    let lastX = mouseX;
+    let lastY = mouseY;
+
+    const setCursorVisibility = (visible) => {
+      cursor.classList.toggle('is-visible', visible);
+    };
+
+    const updateCursor = () => {
+      currentX += (mouseX - currentX) * 0.18;
+      currentY += (mouseY - currentY) * 0.18;
+
+      const deltaX = mouseX - lastX;
+      const deltaY = mouseY - lastY;
+      const tilt = Math.max(Math.min((deltaX + deltaY) * 0.12, 12), -12);
+
+      cursor.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${tilt}deg)`;
+      cursorRobot.style.transform = `translate(-50%, -50%) scale(${cursorRobot.classList.contains('is-hovered') ? 1.12 : 1})`;
+      lastX = mouseX;
+      lastY = mouseY;
+      requestAnimationFrame(updateCursor);
+    };
+
+    const createTrailParticle = (x, y) => {
+      const particle = document.createElement('span');
+      particle.className = 'cursor-trail';
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 260);
+    };
+
+    document.addEventListener('pointermove', (event) => {
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+      setCursorVisibility(true);
+      if (Math.random() < 0.5) {
+        createTrailParticle(event.clientX + 4, event.clientY + 4);
+      }
+    });
+
+    document.addEventListener('pointerdown', () => {
+      cursorRobot.classList.add('is-clicked');
+      setTimeout(() => cursorRobot.classList.remove('is-clicked'), 200);
+    });
+
+    document.addEventListener('pointerleave', () => setCursorVisibility(false));
+
+    ['a', 'button', '.btn', '.project-toggle', '.project-card', '.skill-group', '.cert-card', '.education-card', '.achievement-card', '.timeline-content', '.nav-links a', 'input', 'textarea'].forEach((selector) => {
+      document.querySelectorAll(selector).forEach((element) => {
+        element.addEventListener('mouseenter', () => cursorRobot.classList.add('is-hovered'));
+        element.addEventListener('mouseleave', () => cursorRobot.classList.remove('is-hovered'));
+      });
+    });
+
+    const blinkEyes = () => {
+      cursorRobot.classList.add('is-blinking');
+      setTimeout(() => cursorRobot.classList.remove('is-blinking'), 180);
+    };
+
+    setInterval(blinkEyes, 3200);
+
+    requestAnimationFrame(updateCursor);
+    setCursorVisibility(true);
+  }
 
   if (progressBar) {
     const updateScrollProgress = () => {
